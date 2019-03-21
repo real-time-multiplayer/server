@@ -52,7 +52,7 @@ io.on('connection', function(socket) {
 
   });
 
-  socket.on('playerMovement', (playerMovement) => {
+  socket.on('playerMovement', function(playerMovement) {
     const player = gameState.players[socket.id]
     const canvasWidth = 480
     const canvasHeight = 320
@@ -71,7 +71,7 @@ io.on('connection', function(socket) {
     }
   });
 
-  socket.on('removeCoin', (index) => {
-    gameState.coins.splice(index, 1);
+  socket.on('coinState', function(coins) {
+    gameState.coins = coins
   })
 });
