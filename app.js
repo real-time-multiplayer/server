@@ -16,6 +16,8 @@ const canvas = {
   height: 320
 }
 
+let roomList = []
+
 io.on('connection', function(socket) {
   setInterval(() => {
     io.sockets.emit('state', gameState);
@@ -73,5 +75,26 @@ io.on('connection', function(socket) {
 
   socket.on('coinState', function(coins) {
     gameState.coins = coins
+  })
+
+
+
+  // room socket
+  socket.emit('fetchRoom', { roomList, id:socket.id })
+
+  socket.on('createRoom', function(roomObj) {
+    roomList.unshift(roomObj)
+    io.emit('createRoom', roomObj)
+  })
+
+  socket.on('enterRoom', function(userObj) {
+    socket.join(userObj.roomName)
+    roomList[getIndex(userObj.roomName)].users.push(userObj.username)
+    socket.emit('enterRoom', {
+      currUsers: roomList[getIndex(userObj.roomName)].users,
+      roomName: userObj.roomName
+    })
+    
+    socket.broadcast.to(userObj.roomName).emit('newJoin', userObj.username)
   })
 });
