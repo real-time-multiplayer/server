@@ -32,17 +32,6 @@ io.on('connection', function(socket) {
     clearInterval(game);
   });
 
-  // socket.on('newPlayer', function() {
-  //   gameState.players[socket.id] = {
-  //     x: Math.random() * 250,
-  //     y: Math.random() * 250,
-  //     width: 25,
-  //     height: 25,
-  //     score: 0,
-  //     name: socket.id
-  //   }
-  // });
-
   socket.on('toggleGame', function(roomName) {
     roomList[getIndex(roomName)].gameState.isPlaying = !roomList[getIndex(roomName)].gameState.isPlaying
     if(roomList[getIndex(roomName)].gameState.isPlaying === true) {
