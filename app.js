@@ -5,10 +5,16 @@ const io = require('socket.io')(server);
 const port = process.env.PORT || 3000
 server.listen(port)
 
+// room = {
+//   'room id': gameState
+// }
+
+const room = {}
+
 const gameState = {
   players: {},
   coins: [],
-  isPlaying: true,
+  isPlaying: false,
 }
 
 const canvas = {
@@ -19,22 +25,10 @@ const canvas = {
 let roomList = []
 
 io.on('connection', function(socket) {
-  setInterval(() => {
-    io.sockets.emit('state', gameState);
-  }, 1000 / 60);
-
-  if(gameState.isPlaying) {
-    setInterval(() => {
-      let circleX = Math.random() * (canvas.width - 20) + 10;
-      let circleY = Math.random() * (canvas.height - 20) + 10;
-      gameState.coins.push({
-        x: circleX,
-        y: circleY
-      })
-    }, 2000);
-  }
-
+  var game = ''
+  var state = ''
   console.log(`new user connected`);
+
   socket.on('disconnect', function() {
     delete gameState.players[socket.id];
     gameState.coins = [];
@@ -47,11 +41,31 @@ io.on('connection', function(socket) {
       y: Math.random() * 250,
       width: 25,
       height: 25,
+      score: 0
     }
   });
 
-  socket.on('gameStart', function() {
+  socket.on('toggleGame', function(roomId) {
+    
+    gameState.isPlaying = !gameState.isPlaying;
+    console.log(gameState.isPlaying);
+    if(gameState.isPlaying === true) {
+      game = setInterval(() => {
+        let circleX = Math.random() * (canvas.width - 50) + 25;
+        let circleY = Math.random() * (canvas.height - 50) + 25;
+        gameState.coins.push({
+          x: circleX,
+          y: circleY
+        })
+      }, 2000);
 
+      state = setInterval(() => {
+        io.sockets.emit('state', gameState);
+      }, 1000 / 60);
+    } else {
+      clearInterval(state);
+      clearInterval(game);
+    }
   });
 
   socket.on('playerMovement', function(playerMovement) {
